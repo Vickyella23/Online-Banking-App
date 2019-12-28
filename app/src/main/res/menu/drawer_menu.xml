@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/accounts"
+            android:title="Accounts"
+            android:icon="@drawable/ic_action_account"
+            />
+
+        <item
+            android:id="@+id/transfers"
+            android:title="Transfer"
+            android:icon="@drawable/ic_action_transfers"
+            />
+        <item
+            android:id="@+id/quickLoan"
+            android:title="Quick Loans"
+            android:icon="@drawable/ic_action_loan"
+            />
+        <item
+            android:id="@+id/settings"
+            android:title="Settings"
+            android:icon="@drawable/ic_action_settings"
+            />
+
+    </group>
+
+</menu>
