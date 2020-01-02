@@ -99,8 +99,6 @@ public class Login extends AppCompatActivity {
         });
 
 
-
-
         tvForgot.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -9,17 +9,4 @@
     <!-- TODO: Update blank fragment layout -->
 
 
-    <fragment
-        android:id="@+id/fragment"
-        android:name="com.e.mobilebanking.OwnAccount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
-
-    <fragment
-        android:id="@+id/fragment2"
-        android:name="com.e.mobilebanking.ToGT"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" />
 </LinearLayout>
