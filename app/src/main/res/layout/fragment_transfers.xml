@@ -3,10 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
+    android:orientation="vertical"
+    android:padding="20dp"
     tools:context=".TransfersFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="NEW BENEFICIARY"/>
 
+    <EditText
+        android:id="@+id/beneficiary_account"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="enter beneficiary email"
+        />
+
+    <EditText
+        android:id="@+id/amount_to_send"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:hint="amount"/>
+    <Button
+        android:id="@+id/send_button"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:textColor="@color/white"
+        android:background="@color/colorPrimary"
+        android:text="Send"/>
 </LinearLayout>

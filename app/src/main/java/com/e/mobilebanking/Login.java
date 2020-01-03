@@ -141,8 +141,7 @@ public class Login extends AppCompatActivity {
                         @Override
                         public void handleResponse(BackendlessUser response) {
                             startActivity(new Intent(Login.this, MainActivity.class));
-
-                            Login.this.finish();
+                            finish();
 
                         }
 
