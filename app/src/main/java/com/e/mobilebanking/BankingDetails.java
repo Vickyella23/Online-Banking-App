@@ -48,7 +48,7 @@ public class BankingDetails extends AppCompatActivity {
         etReset = findViewById(R.id.etReset);
         btnReg = findViewById(R.id.btnReg1);
 
-        btnReg.setOnClickListener(new View.OnClickListener() {
+        btnReg.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                     if(etName.getText().toString().isEmpty() || etEmail.getText().toString().isEmpty() || etPassword.getText().toString().isEmpty() || etReset.getText().toString().isEmpty()){

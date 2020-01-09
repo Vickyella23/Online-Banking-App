@@ -35,7 +35,7 @@
                 android:gravity="center"
                 android:padding="5dp"
                 android:minHeight="?actionBarSize"
-                android:text="#1000.00"
+                android:text=""
                 android:textColor="@color/grey"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title" />
 

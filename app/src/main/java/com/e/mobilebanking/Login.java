@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -65,15 +66,20 @@ public class Login extends AppCompatActivity {
 
 
                     showProgress(true);
+
+
                     tvLoad.setText("Logging you in...");
 
 
                     Backendless.UserService.login(email, password, new AsyncCallback<BackendlessUser>() {
                         @Override
                         public void handleResponse(BackendlessUser response) {
-//                            TestApplication.user = response;
-                            Toast.makeText(Login.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
+                            TestApplication.user = response;
+//                            String userObjectId = UserIdStorageFactory.instance().getStorage().get();
                             startActivity(new Intent(Login.this, MainActivity.class));
+                            String userObjectId = UserIdStorageFactory.instance().getStorage().get();
+                            Toast.makeText(Login.this, "Logged in Successfully. user object id " + userObjectId, Toast.LENGTH_SHORT).show();
+
                             Login.this.finish();
 
                         }
