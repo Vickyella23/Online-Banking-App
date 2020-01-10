@@ -36,6 +36,8 @@ import butterknife.OnClick;
 
 
 public class TransfersFragment extends Fragment  {
+
+
     private class VictoriaBackendlessUser extends BackendlessUser {
         public double account_balance;
 
@@ -54,6 +56,7 @@ public class TransfersFragment extends Fragment  {
     public String SERVER_URL = "https://api.backendless.com";
     public BackendlessUser debit;
     public BackendlessUser credit;
+    private int debitAmount;
 //    public VictoriaBackendlessUser credit;
 
     @BindView(R.id.send_button)
@@ -141,13 +144,44 @@ public class TransfersFragment extends Fragment  {
                 @Override
                 public void handleResponse(List<BackendlessUser> response) {
                     if ( response != null && !response.isEmpty() ){
+                        Toast.makeText(getContext(), response.get(0).getEmail(), Toast.LENGTH_SHORT).show();
                         BackendlessUser _credit = response.get(0);
-                        setCredit( _credit );
-            debit.setProperty( "account_balance", convertToDouble(debit.getProperty("account_balance").toString()) - convertToDouble(amountToSend.getText().toString() ) );
+                        setCredit(_credit);
+                        debitAmount = Integer.valueOf(amountToSend.getText().toString());
+                        int account = (int) debit.getProperty("account_balance");
+                        int accountBalance = account - debitAmount;
+                        debit.setProperty("account_balance", accountBalance);
+                        _credit.setProperty("account_balance", (int) _credit.getProperty("account_balance") + debitAmount);
+                        Backendless.UserService.update( debit, new AsyncCallback<BackendlessUser>()
+                        {
+                            public void handleResponse( BackendlessUser user )
+                            {
+                                // user has been updated
+                                Toast.makeText(getContext(), "new account balance = " + user.getProperty("account_balance"), Toast.LENGTH_LONG).show();
+                            }
 
-            credit.setProperty( "account_balance", convertToDouble(credit.getProperty("account_balance").toString()) + convertToDouble(amountToSend.getText().toString() ) );
+                            public void handleFault( BackendlessFault fault )
+                            {
+                                // user update failed, to get the error code call fault.getCode()
+                            }
+                        });
+                        Backendless.UserService.update( _credit, new AsyncCallback<BackendlessUser>()
+                        {
+                            public void handleResponse( BackendlessUser user )
+                            {
+                                // user has been updated
+                                //Toast.makeText(getContext(), "new account balance = " + debit.getProperty("account_balance"), Toast.LENGTH_LONG).show();
+                            }
 
-                    }else{
+                            public void handleFault( BackendlessFault fault )
+                            {
+                                // user update failed, to get the error code call fault.getCode()
+                            }
+                        });
+
+                    }
+
+                    else{
 
                     }
 
@@ -201,9 +235,12 @@ public class TransfersFragment extends Fragment  {
 //
 //    }
 //
-//    @OnClick(R.id.amount_to_send)
-//    void setAmountToSend() {
-//
-//
-//    }
+   @OnClick(R.id.amount_to_send)
+   void setAmountToSend() {
+
+   }
+
+    public int getDebitAmount() {
+        return debitAmount;
+    }
 }

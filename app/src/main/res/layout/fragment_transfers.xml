@@ -25,6 +25,7 @@
         android:id="@+id/amount_to_send"
         android:layout_width="match_parent"
         android:layout_height="45dp"
+        android:inputType="number"
         android:hint="amount"/>
     <Button
         android:id="@+id/send_button"

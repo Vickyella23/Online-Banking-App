@@ -75,6 +75,9 @@ public class Login extends AppCompatActivity {
                         @Override
                         public void handleResponse(BackendlessUser response) {
                             TestApplication.user = response;
+
+                            BackendlessUser user = Backendless.UserService.CurrentUser();
+                            Toast.makeText(Login.this, user.getEmail(), Toast.LENGTH_SHORT).show();
 //                            String userObjectId = UserIdStorageFactory.instance().getStorage().get();
                             startActivity(new Intent(Login.this, MainActivity.class));
                             String userObjectId = UserIdStorageFactory.instance().getStorage().get();

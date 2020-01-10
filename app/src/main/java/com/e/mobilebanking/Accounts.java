@@ -125,11 +125,12 @@ public class Accounts extends Fragment {
 
     @OnClick(R.id.balance)
     public void setBalance() {
+/*
 
         debit.setProperty( "balance", debit.account_balance - amountToSend.getText() );
 
         credit.setProperty( "balance", debit.account_balance + amountToSend.getText() );
-
+*/
 
     }
 
