@@ -207,6 +207,18 @@ public class TransfersFragment extends Fragment  {
                                     // user update failed, to get the error code call fault.getCode()
                                 }
                             });
+
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("  ").setMessage("Transfer Successful")
+                                    .setPositiveButton("OK", (dialogInterface, i) -> {
+                                        Accounts fragment = new Accounts();
+                                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                                        fragmentTransaction.replace(R.id.frame, fragment, "Accounts");
+                                        fragmentTransaction.commit();
+                                    }).show();
+
+
                         }
                     }
                 }
@@ -217,16 +229,6 @@ public class TransfersFragment extends Fragment  {
 
                 }
             });
-
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("  ").setMessage("Transfer Successful")
-                        .setPositiveButton("OK", (dialogInterface, i) -> {
-                    Accounts fragment = new Accounts();
-                    FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.frame, fragment, "Accounts");
-                    fragmentTransaction.commit();
-                }).show();
 
 
 
