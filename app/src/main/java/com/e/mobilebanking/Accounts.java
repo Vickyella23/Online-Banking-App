@@ -20,6 +20,10 @@ import com.backendless.async.callback.AsyncCallback;
 import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.local.UserIdStorageFactory;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -40,6 +44,8 @@ public class Accounts extends Fragment {
 
     Button currentButton;
     private FragmentTransaction transaction;
+    public List<String> historyList = new ArrayList<>();
+
     public Accounts() {
         // Required empty public constructor
     }
@@ -63,6 +69,7 @@ public class Accounts extends Fragment {
             public void handleResponse(BackendlessUser response) {
                 Toast.makeText( getActivity(), response.getEmail(), Toast.LENGTH_SHORT ).show();
                 setDebit(response);
+
                 //refresh the view with new data...
             }
 

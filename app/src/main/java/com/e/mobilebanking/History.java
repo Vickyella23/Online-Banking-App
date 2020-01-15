@@ -5,23 +5,33 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.backendless.Backendless;
+import com.backendless.BackendlessUser;
+import com.backendless.async.callback.AsyncCallback;
+import com.backendless.exceptions.BackendlessFault;
+import com.backendless.persistence.local.UserIdStorageFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link History.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link History#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class History extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
+
+    private RecyclerView recyclerView;
+    private List<String> historyList = new ArrayList<>();
+    private ProgressBar progressBar;
 
     public History() {
         // Required empty public constructor
@@ -31,48 +41,66 @@ public class History extends Fragment {
     public static History newInstance() {
         return new History();
     }
+    private void setHistoryList(BackendlessUser user) {
+        String transactionHistory = user.getProperty("debit_history").toString();
+        String[] split = transactionHistory.split("-");
+        for (String s : split) {
+            if (s.equals("null"))
+                continue;
+            historyList.add(s);
+        }
+        onResume();
 
+    }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String userObjectId = UserIdStorageFactory.instance().getStorage().get();
+
+        Backendless.Data.of(BackendlessUser.class).findById(userObjectId, new AsyncCallback<BackendlessUser>() {
+            @Override
+            public void handleResponse(BackendlessUser response) {
+                setHistoryList(response);
+
+                //refresh the view with new data...
+            }
+
+            @Override
+            public void handleFault(BackendlessFault fault) {
+                Toast.makeText(getActivity(), "Error: " + fault.getMessage(), Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.fragment_history, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_history, container, false);
+        recyclerView = rootView.findViewById(R.id.recycler_history);
+        progressBar = rootView.findViewById(R.id.progress_circular);
+        progressBar.setVisibility(View.VISIBLE);
+        return rootView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
+
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
+    public void onResume() {
+        super.onResume();
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+
+        if (!historyList.isEmpty())
+            progressBar.setVisibility(View.GONE);
+        recyclerView.setAdapter(new HistoryAdapter(historyList));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+        recyclerView.setHasFixedSize(true);
     }
 }

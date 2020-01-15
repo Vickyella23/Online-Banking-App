@@ -29,7 +29,9 @@ import com.backendless.exceptions.BackendlessFault;
 import com.backendless.persistence.DataQueryBuilder;
 import com.backendless.persistence.local.UserIdStorageFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 //import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,6 +64,7 @@ public class TransfersFragment extends Fragment  {
     private int debitAmount;
     private boolean sentSuccess;
     private boolean receivedSuccess;
+    private String userObjectId;
 //    public VictoriaBackendlessUser credit;
 
     @BindView(R.id.send_button)
@@ -92,7 +95,7 @@ public class TransfersFragment extends Fragment  {
         Backendless.initApp( getActivity().getApplicationContext(),
                 APPLICATION_ID,
                 API_KEY );
-        String userObjectId = UserIdStorageFactory.instance().getStorage().get();
+        userObjectId = UserIdStorageFactory.instance().getStorage().get();
         Backendless.Data.of(BackendlessUser.class).findById(userObjectId, new AsyncCallback<BackendlessUser>() {
             @Override
             public void handleResponse(BackendlessUser response) {
@@ -139,7 +142,6 @@ public class TransfersFragment extends Fragment  {
             Toast.makeText(getActivity(), "Enter amount to send", Toast.LENGTH_SHORT).show();
         }
         else {
-            String userObjectId = UserIdStorageFactory.instance().getStorage().get();
 
             String whereClause = String.format("email = '%s'",beneficiaryAccountNumber.getText());
             DataQueryBuilder queryBuilder = DataQueryBuilder.create();
@@ -152,7 +154,7 @@ public class TransfersFragment extends Fragment  {
                 public void handleResponse(List<BackendlessUser> response) {
                     if ( response != null && !response.isEmpty() )
                     {
-                        Toast.makeText(getContext(), response.get(0).getEmail(), Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(getContext(), response.get(0).getEmail(), Toast.LENGTH_SHORT).show();
                         BackendlessUser _credit = response.get(0);
                         setCredit(_credit);
 
@@ -161,6 +163,7 @@ public class TransfersFragment extends Fragment  {
 
                         // moneyInAccount is the total balance in the account of the user
                         int moneyInAccount = (int) debit.getProperty("account_balance");
+                        String debitHistory = (String) debit.getProperty("debit_history");
 
                         // this if statement checks if the debitAmount is greater than the balance in the user account (moneyInAccount)
                         // if it is greater, a message is displayed to the user else the process of transfer continues
@@ -171,7 +174,7 @@ public class TransfersFragment extends Fragment  {
                             // accountBalance is the money left in user's account after debit or subtraction has been carried out
                             int accountBalance = moneyInAccount - debitAmount;
                             debit.setProperty("account_balance", accountBalance);
-                            debit.setProperty("transaction_history", String.format("Transferred %s to %s", debitAmount, beneficiaryAccountNumber.getText().toString()) );
+                            debit.setProperty("debit_history", debitHistory + "-" + String.format("Transferred %s to %s", debitAmount, beneficiaryAccountNumber.getText().toString()) );
                             // the recipient of the transfer gets credited with the amount transferred by the user
                             _credit.setProperty("account_balance", (int) _credit.getProperty("account_balance") + debitAmount);
                             Backendless.UserService.update( debit, new AsyncCallback<BackendlessUser>()
