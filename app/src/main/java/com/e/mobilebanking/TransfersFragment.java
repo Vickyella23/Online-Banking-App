@@ -2,12 +2,14 @@ package com.e.mobilebanking;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Person;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityManagerCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.backendless.Backendless;
@@ -57,6 +60,8 @@ public class TransfersFragment extends Fragment  {
     public BackendlessUser debit;
     public BackendlessUser credit;
     private int debitAmount;
+    private boolean sentSuccess;
+    private boolean receivedSuccess;
 //    public VictoriaBackendlessUser credit;
 
     @BindView(R.id.send_button)
@@ -122,6 +127,7 @@ public class TransfersFragment extends Fragment  {
 
     @OnClick(R.id.send_button)
     void setSendButton() {
+
 //        Toast.makeText( getActivity(), this.debit.getEmail(), Toast.LENGTH_SHORT ).show();
 //        Toast.makeText( getActivity(), beneficiaryAccountNumber.getText(), Toast.LENGTH_SHORT ).show();
         if (TextUtils.isEmpty(beneficiaryAccountNumber.getText()))
@@ -141,51 +147,65 @@ public class TransfersFragment extends Fragment  {
 
 
             Backendless.Data.of(BackendlessUser.class).find( queryBuilder, new AsyncCallback<List<BackendlessUser>>() {
+
                 @Override
                 public void handleResponse(List<BackendlessUser> response) {
-                    if ( response != null && !response.isEmpty() ){
+                    if ( response != null && !response.isEmpty() )
+                    {
                         Toast.makeText(getContext(), response.get(0).getEmail(), Toast.LENGTH_SHORT).show();
                         BackendlessUser _credit = response.get(0);
                         setCredit(_credit);
+
+                        // debitAmount is the amount the user wants to transfer
                         debitAmount = Integer.valueOf(amountToSend.getText().toString());
-                        int account = (int) debit.getProperty("account_balance");
-                        int accountBalance = account - debitAmount;
-                        debit.setProperty("account_balance", accountBalance);
-                        _credit.setProperty("account_balance", (int) _credit.getProperty("account_balance") + debitAmount);
-                        Backendless.UserService.update( debit, new AsyncCallback<BackendlessUser>()
-                        {
-                            public void handleResponse( BackendlessUser user )
-                            {
-                                // user has been updated
-                                Toast.makeText(getContext(), "new account balance = " + user.getProperty("account_balance"), Toast.LENGTH_LONG).show();
-                            }
 
-                            public void handleFault( BackendlessFault fault )
-                            {
-                                // user update failed, to get the error code call fault.getCode()
-                            }
-                        });
-                        Backendless.UserService.update( _credit, new AsyncCallback<BackendlessUser>()
-                        {
-                            public void handleResponse( BackendlessUser user )
-                            {
-                                // user has been updated
-                                //Toast.makeText(getContext(), "new account balance = " + debit.getProperty("account_balance"), Toast.LENGTH_LONG).show();
-                            }
+                        // moneyInAccount is the total balance in the account of the user
+                        int moneyInAccount = (int) debit.getProperty("account_balance");
 
-                            public void handleFault( BackendlessFault fault )
-                            {
-                                // user update failed, to get the error code call fault.getCode()
-                            }
-                        });
+                        // this if statement checks if the debitAmount is greater than the balance in the user account (moneyInAccount)
+                        // if it is greater, a message is displayed to the user else the process of transfer continues
+                        if (debitAmount > moneyInAccount)
+                            Toast.makeText(getContext(), "Your account balance is less than the amount you want to transfer", Toast.LENGTH_SHORT).show();
 
+                        else {
+                            // accountBalance is the money left in user's account after debit or subtraction has been carried out
+                            int accountBalance = moneyInAccount - debitAmount;
+                            debit.setProperty("account_balance", accountBalance);
+                            debit.setProperty("transaction_history", String.format("Transferred %s to %s", debitAmount, beneficiaryAccountNumber.getText().toString()) );
+                            // the recipient of the transfer gets credited with the amount transferred by the user
+                            _credit.setProperty("account_balance", (int) _credit.getProperty("account_balance") + debitAmount);
+                            Backendless.UserService.update( debit, new AsyncCallback<BackendlessUser>()
+                            {
+
+
+                                public void handleResponse(BackendlessUser user )
+                                {
+                                    // user has been updated
+                                    sentSuccess = true;
+                                  //  Toast.makeText(getActivity(), "new account balance = " + user.getProperty("account_balance"), Toast.LENGTH_LONG).show();
+                                }
+
+                                public void handleFault( BackendlessFault fault )
+                                {
+                                    // user update failed, to get the error code call fault.getCode()
+                                }
+                            });
+                            Backendless.UserService.update( _credit, new AsyncCallback<BackendlessUser>()
+                            {
+                                public void handleResponse( BackendlessUser user )
+                                {
+                                    // user has been updated
+                                    receivedSuccess = true;
+
+                                }
+
+                                public void handleFault( BackendlessFault fault )
+                                {
+                                    // user update failed, to get the error code call fault.getCode()
+                                }
+                            });
+                        }
                     }
-
-                    else{
-
-                    }
-
-
                 }
 
 
@@ -196,31 +216,15 @@ public class TransfersFragment extends Fragment  {
             });
 
 
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("  ").setMessage("Transfer Successful")
+                        .setPositiveButton("OK", (dialogInterface, i) -> {
+                    Accounts fragment = new Accounts();
+                    FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.frame, fragment, "Accounts");
+                    fragmentTransaction.commit();
+                }).show();
 
-//            Backendless.Data.of(BackendlessUser.class).findFirst(queryBuilder, new AsyncCallback<List<BackendlessUser>>() {
-//                @Override
-//                public void handleResponse(List<BackendlessUser> usersFound) {
-//                    Toast.makeText(getActivity(), usersFound.size(), Toast.LENGTH_SHORT).show();
-//                }
-//
-//                @Override
-//                public void handleFault(BackendlessFault fault) {
-//                    // an error has occurred, the error code can be retrieved with fault.getCode()
-//                }
-//            });
-//
-
-//            String email = beneficiaryAccountNumber.getText().toString().trim();
-//            String amount = amountToSend.getText().toString().trim();
-//            debit.setProperty( 'account_balance', debit.account_balance - amountToSend.getText() );
-
-//            credit.setProperty( 'account_balance', debit.account_balance + amountToSend.getText() );
-
-
-//            Bank bank = new Bank();
-//            bank.setEmail(email);
-//            bank.setAmount(amount);
-//            bank.setUserEmail(TestApplication.user);
 
 
         }
