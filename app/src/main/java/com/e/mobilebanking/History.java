@@ -42,12 +42,14 @@ public class History extends Fragment {
         return new History();
     }
     private void setHistoryList(BackendlessUser user) {
-        String transactionHistory = user.getProperty("debit_history").toString();
-        String[] split = transactionHistory.split("-");
-        for (String s : split) {
-            if (s.equals("null"))
-                continue;
-            historyList.add(s);
+        if (user.getProperty("debit_history") != null) {
+            String transactionHistory = user.getProperty("debit_history").toString();
+            String[] split = transactionHistory.split("-");
+            for (String s : split) {
+                if (s.equals("null"))
+                    continue;
+                historyList.add(s);
+            }
         }
         onResume();
 
